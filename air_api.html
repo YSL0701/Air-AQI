@@ -163,7 +163,7 @@ var app = new Vue({
   el: '#app',
   created() {
     const vm = this;
-    const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json';
+    const api = './aqi.json';
 
     //  ajax get
     $.get(api).then(function( response ) {
@@ -204,7 +204,7 @@ var app = new Vue({
   methods: {
     getData:function() {
       const vm = this;
-      const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json';
+      const api = './aqi.json';
       this.isLoading = true
       // ajax get
       $.get(api).then(function( response ) {
