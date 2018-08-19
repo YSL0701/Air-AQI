@@ -160,17 +160,17 @@ Vue.component('staredselect',{
 
 var app = new Vue({
   el: '#app',
-  created:function() {
+  created() {
     const vm = this;
     const api = 'http://opendata2.epa.gov.tw/AQI.json';
 
-    // 使用 jQuery ajax
+    //  ajax get
     $.get(api).then(function( response ) {
       vm.data = response;
-      console.log(response);
+      // console.log(response);
 
-      console.log(localStorage);
-      console.log(localStorage.length);
+      // console.log(localStorage);
+      // console.log(localStorage.length);
       if(localStorage.length!=0){
         var save=localStorage.getItem("savedata");
         console.log(save);
@@ -200,13 +200,12 @@ var app = new Vue({
     filter: '',
     isLoading:false
   },
-  // 請在此撰寫 JavaScript
   methods: {
     getData:function() {
       const vm = this;
       const api = 'http://opendata2.epa.gov.tw/AQI.json';
       this.isLoading = true
-      // 使用 jQuery ajax
+      // ajax get
       $.get(api).then(function( response ) {
         vm.isLoading = false
         vm.data = response;
@@ -236,7 +235,6 @@ var app = new Vue({
         window.localStorage.setItem("savedata", save);
         console.log(localStorage);
       }
-      // this.location=[]
       
     },
     removeThisStared:function(remove){
