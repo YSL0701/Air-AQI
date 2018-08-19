@@ -3,7 +3,7 @@
   <head>
     <title>空氣品質指標(AQI)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    <!-- <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"> -->
     <link href="images/favicon.ico" rel="shortcut icon">
     <meta charset="UTF-8">
     <link rel="stylesheet" href="/stylesheets/all.css">
@@ -164,7 +164,7 @@ var app = new Vue({
   el: '#app',
   created() {
     const vm = this;
-    const api = 'http://opendata2.epa.gov.tw/AQI.json';
+    const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json';
 
     //  ajax get
     $.get(api).then(function( response ) {
@@ -205,7 +205,7 @@ var app = new Vue({
   methods: {
     getData:function() {
       const vm = this;
-      const api = 'http://opendata2.epa.gov.tw/AQI.json';
+      const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json';
       this.isLoading = true
       // ajax get
       $.get(api).then(function( response ) {
