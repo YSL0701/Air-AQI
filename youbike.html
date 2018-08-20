@@ -36,7 +36,7 @@
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-lg navbar-light bg-warning">
-            <a class="navbar-brand ml-4" href="#">YouBike查詢</a>
+            <a class="navbar-brand ml-4" href="#">新北市YouBike查詢</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -45,8 +45,8 @@
         </nav>
         <div class="container">
             <form class="form-inline  mt-5">
-                <input class="form-control mr-sm-2" type="search" placeholder="搜尋地點" aria-label="Search" style="width:400px">
-                <button class="btn btn-outline-success my-2 my-sm-0">Search</button>
+                <input v-model="searchContent" class="form-control mr-sm-2" type="search" placeholder="搜尋地點" aria-label="Search" style="width:400px">
+                <button @click="search" type="button" class="btn btn-outline-success my-2 my-sm-0">Search</button>
             </form>
         </div>
         <div class="container mt-5">
@@ -54,7 +54,9 @@
             <div class="card" style="max-width: 20rem;">
                 <div class="card-header bg-warning">
                     汐止火車站
-                    <a class="float-right" href="" ><i class="far fa-heart text-danger"></i></a>
+                    <a class="float-right" href="" @click="addLike">
+                        <i class="far fa-heart text-danger"></i>
+                    </a>
                 </div>
                 <div class="card-body">
                     <p class="card-text">位置 : 南昌街/新昌路口(西側廣場)</p>
@@ -86,9 +88,22 @@ var app = new Vue({
     data:{
         lat:"25.068914",
         lng:"121.662748",
+        likeList:[],
+        searchContent:""
     },
     methods:{
-        
+        addLike() {
+
+        },
+        search() {
+            vm = this
+            $.getJSON(
+                "./youbike.json",
+                function(respons){
+                    console.log(respons)
+                }
+            );
+        }
     },
     computed:{
         newUrl:function(){
