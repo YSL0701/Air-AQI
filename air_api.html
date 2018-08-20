@@ -166,9 +166,7 @@ var app = new Vue({
     const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json&callback=?';
 
     //  ajax get
-    $.getJSON(api,function(){
-      format: "json"
-    }).done(function( response ) {
+    $.getJSON(api,function( response ) {
       vm.data = response;
       // console.log(response);
 
@@ -193,7 +191,8 @@ var app = new Vue({
           })
         })
       }
-    });
+    }
+  )
     
   },
   data: {
@@ -209,13 +208,11 @@ var app = new Vue({
       const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json&callback=?';
       this.isLoading = true
       // ajax get
-      $.getJSON(api,function(){
-        format:"json"
-      }).done(function( response ) {
+      $.getJSON(api,function( response ) {
         vm.isLoading = false
         vm.data = response;
         console.log(response)
-      });
+      })
     },
     addStared:function(addSta){
       var totalStared = this.stared
