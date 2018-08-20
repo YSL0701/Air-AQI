@@ -133,11 +133,11 @@ var app = new Vue({
                             if(result1!=-1 || result2!=-1 || result3!=-1){
                                 vm.searchResult.push(item)
                             }
-                            else{
-                                vm.cantFound = true
-                                vm.mapOpen = false
-                            }
                         })
+                        if(vm.searchResult.length==0){
+                            vm.cantFound = true
+                            vm.mapOpen = false
+                        }
                     }
                 );
             }
