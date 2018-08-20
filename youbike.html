@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hans-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+
+    <style>
+    .map{
+        height: 600px;
+    }
+    @media(max-width:768px){
+        .map{
+            height: 400px;
+        }
+    }
+    @media(max-width:370px){
+        .map{
+            height: 340px;
+        }
+    }
+    @media(max-width:320px){
+        .map{
+            height: 288;
+        }
+    }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg navbar-light bg-warning">
+            <a class="navbar-brand ml-4" href="#">YouBike查詢</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            </div>
+        </nav>
+        <div class="container">
+            <form class="form-inline  mt-5">
+                <input class="form-control mr-sm-2" type="search" placeholder="搜尋地點" aria-label="Search" style="width:400px">
+                <button class="btn btn-outline-success my-2 my-sm-0">Search</button>
+            </form>
+        </div>
+        <div class="container mt-5">
+            <!-- 卡片 -->
+            <div class="card" style="max-width: 20rem;">
+                <div class="card-header bg-warning">
+                    汐止火車站
+                    <a class="float-right" href="" ><i class="far fa-heart text-danger"></i></a>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">位置 : 南昌街/新昌路口(西側廣場)</p>
+                    <p class="card-text">可借數量 : 32輛</p>
+                    <p class="card-text">可停空位 : 24輛</p>
+                    <p class="card-text">時間 : 20180819174816</p>
+                    <button  class="btn btn-primary">
+                        查看google地圖
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="container mt-5" style="max-height:700px">
+            <iframe 
+                width="90%" 
+                frameborder="0"
+                :src="newUrl" class="map">
+            </iframe>
+        </div>
+        
+    </div>
+    
+</body>
+
+<script>
+var app = new Vue({
+    el:'#app',
+    data:{
+        lat:"25.068914",
+        lng:"121.662748",
+    },
+    methods:{
+        
+    },
+    computed:{
+        newUrl:function(){
+            return `https://google.com.tw/maps?f=q&hl=zh-TW&geocode=&q=${this.lat},${this.lng}&z=16&t=&output=embed`
+        }
+    }
+})
+</script>
+</html>
