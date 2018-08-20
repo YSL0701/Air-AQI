@@ -55,14 +55,16 @@
                 <searchcard v-for="(item,key) in searchResult" class="" :location="item" @checkmap="searchMap" :key="key" ></searchcard>
             </div>
         </div>
-        <div v-if="mapUrl" class="container mt-5" style="max-height:700px">
+        <div v-show="mapOpen" class="container mt-5" style="max-height:700px">
             <iframe 
                 width="90%" 
                 frameborder="0"
                 :src="mapUrl" class="map">
             </iframe>
         </div>
-        
+        <div id="goTop" @click="gotToTop" style="position:fixed;right: 150px;bottom: 30px;cursor: pointer;display: none;width:30px;height:30px;text-align: center;line-height: 30px;">
+            <i class="fas fa-arrow-up"></i>
+        </div>
     </div>
     
 </body>
@@ -104,12 +106,11 @@ Vue.component('searchcard',{
 var app = new Vue({
     el:'#app',
     data:{
-        lat:"",
-        lng:"",
         likeList:[],
         searchContent:"",
         searchResult:[],
-        mapUrl:""
+        mapOpen:false,
+        mapUrl:"https://google.com.tw/maps?f=q&hl=zh-TW&geocode=&q=&z=16&t=&output=embed"
     },
     methods:{
         // addLike() {
@@ -135,14 +136,33 @@ var app = new Vue({
             }
         },
         searchMap(lat,lng) {
+            this.mapOpen = true
             this.mapUrl = `https://google.com.tw/maps?f=q&hl=zh-TW&geocode=&q=${lat},${lng}&z=16&t=&output=embed`
+            $("html,body").animate({
+                scrollTop:$(document).height()-$(window).height()
+            },200)
+        },
+        gotToTop:function(){
+            $("html,body").animate({
+                scrollTop:0
+            },600)
         }
     },
     computed:{
         newUrl:function(){
             return `https://google.com.tw/maps?f=q&hl=zh-TW&geocode=&q=${this.lat},${this.lng}&z=16&t=&output=embed`
         }
-    }
+    },
+    created() {
+        $(window).scroll(function(){
+            if($(this).scrollTop()>600){
+                $("#goTop").fadeIn("300")
+            }
+            else{
+                $("#goTop").fadeOut("300")
+            }
+        })
+    },
 })
 </script>
 </html>
