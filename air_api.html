@@ -11,297 +11,292 @@
     <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/fontawesome.js" integrity="sha384-7ox8Q2yzO/uWircfojVuCQOZl+ZZBg2D2J5nkpLqzH1HY0C1dHlTKIbpRz/LG23c" crossorigin="anonymous"></script>    
     <script src="/javascripts/vendor.js"></script>
 
+    <!-- 
+    狀態對應表
+    '良好',
+    'status-aqi2' '普通',
+    'status-aqi3' '對敏感族群不健康',
+    'status-aqi4' '對所有族群不健康',
+    'status-aqi5' '非常不健康',
+    'status-aqi6' '危害'
+    --> 
+    <style>
+      .status-aqi2 {
+        background-color: #ffff00;
+      }
+      .status-aqi3 {
+        background-color: #ff7e00;
+      }
+      .status-aqi4 {
+        background-color: #ff0000;
+      }
+      .status-aqi5 {
+        background-color: #8f3f97;
+      }
+      .status-aqi6 {
+        background-color: #7e0023;
+      }
+    </style>
   </head>
   
-  <body class="bg-lighter">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="https://data.gov.tw/dataset/40448">空氣品質指標(AQI)</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarText">
-</nav>
+<body class="bg-lighter">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="https://data.gov.tw/dataset/40448">空氣品質指標(AQI)</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarText">
+  </nav>
 
-<div id="app">
-  <div class="container">
-      <h4 class="mt-4">請選擇城市來查看空氣品質</h4>
-    <select name="" id="" class="form-control mb-3 mt-4" v-model="location">
-      <option disabled value="">--- 請選擇城市 ---</option>
-      <option is="optlocal" v-if="data!=[]" v-for="item in data" :localdata="item"></option>
-    </select>
-    <button class="btn btn-outline-primary mt-3" @click="getData">更新資料</button>
-    <span v-if="isLoading">
-      <i class="fas fa-spinner fa-spin ml-2"></i>
-    </span>
-    <br><br>
+  <div id="app">
+    <div class="container">
+        <h4 class="mt-4">請選擇城市來查看空氣品質</h4>
+      <select name="" id="" class="form-control mb-3 mt-4" v-model="location">
+        <option disabled value="">--- 請選擇城市 ---</option>
+        <option is="optlocal" v-if="data!=[]" v-for="item in data" :localdata="item"></option>
+      </select>
+      <button class="btn btn-outline-primary mt-3" @click="getData">更新資料</button>
+      <span v-if="isLoading">
+        <i class="fas fa-spinner fa-spin ml-2"></i>
+      </span>
+      <br><br>
+      <div>
+        <h4 v-if="stared[0]">關注中的城市</h4>
+        <div class="row card-columns col-12">
+          <staredselect class="px-2" v-if="stared[0]" v-for="item in stared" :stared-selected="item" @removesta="removeThisStared" :key="item.SiteName"></staredselect>
+        </div>
+      </div>
+      
+      <hr>
+      <h4 v-if="location.County">選擇中的城市 (按星號關注城市)</h4>
+      <div class="row card-columns col-10">
+        <localselect v-if="location.County" :local-selected="location" :staredlist="stared" @stared="addStared" :key="location.SiteName"></localselect>  
+      </div>
+    </div>
+  </div>
+</body>
+
+  <script type="text/x-template" id="optloc">
+    <option :value="localdata">{{`${localdata.County} - ${localdata.SiteName}`}}</option>
+  </script>
+  
+  
+  <script type="text/x-template" id="selected">
+    <div class="px-2" v-show="visible">
+      <div class="card" :class="cssAir">
+        <div class="card-header">{{localSelected.County+" "+"-"+" "+localSelected.SiteName}}
+          <a href="#" class="float-right" @click.prevent="isStared"><i class="far fa-star"></i></a>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li>AQI 指數:{{ " "+localSelected.AQI }} </li>
+            <li>PM2.5:{{ " "+localSelected["PM2.5"] }} </li>
+            <li>說明:{{ " "+localSelected.Status }} </li>
+          </ul>
+          {{ localSelected.PublishTime }}
+        </div>
+      </div>
+    </div>
+  </script>
+  
+  <script type="text/x-template" id="staredSite">
     <div>
-      <h4 v-if="stared[0]">關注中的城市</h4>
-      <div class="row card-columns col-12">
-        <staredselect class="px-2" v-if="stared[0]" v-for="item in stared" :stared-selected="item" @removesta="removeThisStared" :key="item.SiteName"></staredselect>
+      <div class="card" :class="cssAir">
+        <div class="card-header">{{staredSelected.County+" "+"-"+" "+staredSelected.SiteName}}
+          <a href="#" class="float-right" @click.prevent="removeStared"><i class="fas fa-star"></i></a>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li>AQI 指數:{{ " "+staredSelected.AQI }} </li>
+            <li>PM2.5:{{ " "+staredSelected["PM2.5"] }} </li>
+            <li>說明:{{ " "+staredSelected.Status }} </li>
+          </ul>
+          {{ staredSelected.PublishTime }}
+        </div>
       </div>
     </div>
+  </script>
+  
+  <script>
+    // API 來源
+    // https://opendata.epa.gov.tw/Data/Contents/AQI/
+    Vue.component('optlocal',{
+      props:['localdata'],
+      template:'#optloc'
+    });
     
-    <hr>
-    <h4 v-if="location.County">選擇中的城市 (按星號關注城市)</h4>
-    <div class="row card-columns col-10">
-      <localselect v-if="location.County" :local-selected="location" :staredlist="stared" @stared="addStared" :key="location.SiteName"></localselect>  
-    </div>
-  </div>
-</div>
-
-<script type="text/x-template" id="optloc">
-  <option :value="localdata">{{`${localdata.County} - ${localdata.SiteName}`}}</option>
-</script>
-
-
-<script type="text/x-template" id="selected">
-  <div class="px-2" v-show="visible">
-    <div class="card" :class="cssAir">
-      <div class="card-header">{{localSelected.County+" "+"-"+" "+localSelected.SiteName}}
-        <a href="#" class="float-right" @click.prevent="isStared"><i class="far fa-star"></i></a>
-      </div>
-      <div class="card-body">
-        <ul class="list-unstyled">
-          <li>AQI 指數:{{ " "+localSelected.AQI }} </li>
-          <li>PM2.5:{{ " "+localSelected["PM2.5"] }} </li>
-          <li>說明:{{ " "+localSelected.Status }} </li>
-        </ul>
-        {{ localSelected.PublishTime }}
-      </div>
-    </div>
-  </div>
-</script>
-
-<script type="text/x-template" id="staredSite">
-  <div>
-    <div class="card" :class="cssAir">
-      <div class="card-header">{{staredSelected.County+" "+"-"+" "+staredSelected.SiteName}}
-        <a href="#" class="float-right" @click.prevent="removeStared"><i class="fas fa-star"></i></a>
-      </div>
-      <div class="card-body">
-        <ul class="list-unstyled">
-          <li>AQI 指數:{{ " "+staredSelected.AQI }} </li>
-          <li>PM2.5:{{ " "+staredSelected["PM2.5"] }} </li>
-          <li>說明:{{ " "+staredSelected.Status }} </li>
-        </ul>
-        {{ staredSelected.PublishTime }}
-      </div>
-    </div>
-  </div>
-</script>
-
-<script>
-// API 來源
-// https://opendata.epa.gov.tw/Data/Contents/AQI/
-Vue.component('optlocal',{
-  props:['localdata'],
-  template:'#optloc'
-});
-
-Vue.component('localselect',{
-  props:['localSelected','staredlist'],
-  template:'#selected',
-  data:function(){
-    return {
-        cssAir:{
-          'status-aqi2':this.localSelected.Status=='普通',
-          'status-aqi3':this.localSelected.Status=='對敏感族群不健康',
-          'status-aqi4':this.localSelected.Status=='對所有族群不健康',
-          'status-aqi5':this.localSelected.Status=='非常不健康',
-          'status-aqi6':this.localSelected.Status=='危害'
-        },
-        newStared:this.localSelected
-      }
-  },
-  methods:{
-    isStared:function(){
-      this.$emit('stared',this.newStared)
-    }
-  },
-  computed:{
-    visible:function(){
-      var counter=0
-      var vm = this
-      this.staredlist.forEach(function(item){
-        if(item.SiteName==vm.localSelected.SiteName){
-          counter++
-        }
-      });
-      if (counter==0){
-        return true
-      }
-      else{
-        return false
-      }
-    }
-  }
-})
-
-Vue.component('staredselect',{
-  props:['staredSelected'],
-  template:'#staredSite',
-  data:function(){
-    return {
-      cssAir:{
-        'status-aqi2':this.staredSelected.Status=='普通',
-        'status-aqi3':this.staredSelected.Status=='對敏感族群不健康',
-        'status-aqi4':this.staredSelected.Status=='對所有族群不健康',
-        'status-aqi5':this.staredSelected.Status=='非常不健康',
-        'status-aqi6':this.staredSelected.Status=='危害'
+    Vue.component('localselect',{
+      props:['localSelected','staredlist'],
+      template:'#selected',
+      data:function(){
+        return {
+            cssAir:{
+              'status-aqi2':this.localSelected.Status=='普通',
+              'status-aqi3':this.localSelected.Status=='對敏感族群不健康',
+              'status-aqi4':this.localSelected.Status=='對所有族群不健康',
+              'status-aqi5':this.localSelected.Status=='非常不健康',
+              'status-aqi6':this.localSelected.Status=='危害'
+            },
+            newStared:this.localSelected
+          }
       },
-      Stareding:this.staredSelected
-    }
-  },
-  methods:{
-    removeStared:function(){
-      this.$emit('removesta',this.Stareding)
-    }
-  }
-})
-
-var app = new Vue({
-  el: '#app',
-  created() {
-    const vm = this;
-    const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json&callback=?';
-
-    //  ajax get
-    $.getJSON(api,function( response ) {
-      vm.data = response;
-      // console.log(response);
-
-      // console.log(localStorage);
-      // console.log(localStorage.length);
-      if(localStorage.length!=0){
-        var save=localStorage.getItem("savedata");
-        console.log(save);
-        var saveArray=[]
-        saveArray=save.split(",")
-        console.log(saveArray);
-        saveArray.forEach(function(item){
-          var eachSave= item
-          vm.data.every(function(item){
-            if(item.SiteName==eachSave){
-              vm.stared.push(item)
+      methods:{
+        isStared:function(){
+          this.$emit('stared',this.newStared)
+        }
+      },
+      computed:{
+        visible:function(){
+          var counter=0
+          var vm = this
+          this.staredlist.forEach(function(item){
+            if(item.SiteName==vm.localSelected.SiteName){
+              counter++
+            }
+          });
+          if (counter==0){
+            return true
+          }
+          else{
+            return false
+          }
+        }
+      }
+    })
+    
+    Vue.component('staredselect',{
+      props:['staredSelected'],
+      template:'#staredSite',
+      data:function(){
+        return {
+          cssAir:{
+            'status-aqi2':this.staredSelected.Status=='普通',
+            'status-aqi3':this.staredSelected.Status=='對敏感族群不健康',
+            'status-aqi4':this.staredSelected.Status=='對所有族群不健康',
+            'status-aqi5':this.staredSelected.Status=='非常不健康',
+            'status-aqi6':this.staredSelected.Status=='危害'
+          },
+          Stareding:this.staredSelected
+        }
+      },
+      methods:{
+        removeStared:function(){
+          this.$emit('removesta',this.Stareding)
+        }
+      }
+    })
+    
+    var app = new Vue({
+      el: '#app',
+      created() {
+        const vm = this;
+        const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json&callback=?';
+    
+        //  ajax get
+        $.getJSON(api,function( response ) {
+          vm.data = response;
+          // console.log(response);
+    
+          // console.log(localStorage);
+          // console.log(localStorage.length);
+          if(localStorage.length!=0){
+            var save=localStorage.getItem("savedata");
+            console.log(save);
+            var saveArray=[]
+            saveArray=save.split(",")
+            console.log(saveArray);
+            saveArray.forEach(function(item){
+              var eachSave= item
+              vm.data.every(function(item){
+                if(item.SiteName==eachSave){
+                  vm.stared.push(item)
+                  return false
+                }
+                else{
+                  return true
+                }
+              })
+            })
+          }
+        }
+      )
+        
+      },
+      data: {
+        data: [],
+        location: [],
+        stared: [],
+        filter: '',
+        isLoading:false
+      },
+      methods: {
+        getData:function() {
+          const vm = this;
+          const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json&callback=?';
+          this.isLoading = true
+          // ajax get
+          $.getJSON(api,function( response ) {
+            vm.isLoading = false
+            vm.data = response;
+            console.log(response)
+          })
+        },
+        addStared:function(addSta){
+          var totalStared = this.stared
+          var counter = 0
+          var save =""
+          totalStared.forEach(function(item){
+            if(item.SiteName==addSta.SiteName){
+              counter ++
+            }
+          })
+          if(counter==0){
+            this.stared.push(addSta)
+            // console.log(addSta)
+            this.stared.forEach(function(item){
+              if(save){
+                save = save+","+ item.SiteName
+              }
+              else if(save==""){
+                save = item.SiteName
+              }
+            })
+            window.localStorage.setItem("savedata", save);
+            console.log(localStorage);
+          }
+          
+        },
+        removeThisStared:function(remove){
+          var removeIndex=""
+          var save =""
+          this.stared.every(function(item,index){
+            if(item.SiteName==remove.SiteName){
+              removeIndex = index
               return false
             }
             else{
               return true
             }
           })
-        })
-      }
-    }
-  )
-    
-  },
-  data: {
-    data: [],
-    location: [],
-    stared: [],
-    filter: '',
-    isLoading:false
-  },
-  methods: {
-    getData:function() {
-      const vm = this;
-      const api = 'https://opendata.epa.gov.tw/ws/Data/AQI/?$format=json&callback=?';
-      this.isLoading = true
-      // ajax get
-      $.getJSON(api,function( response ) {
-        vm.isLoading = false
-        vm.data = response;
-        console.log(response)
-      })
-    },
-    addStared:function(addSta){
-      var totalStared = this.stared
-      var counter = 0
-      var save =""
-      totalStared.forEach(function(item){
-        if(item.SiteName==addSta.SiteName){
-          counter ++
-        }
-      })
-      if(counter==0){
-        this.stared.push(addSta)
-        // console.log(addSta)
-        this.stared.forEach(function(item){
+          this.stared.splice(removeIndex,1);
+          this.stared.forEach(function(item){
+            if(save){
+              save =save+","+ item.SiteName
+            }
+            else if(save==""){
+              save = item.SiteName
+            }
+          })
           if(save){
-            save = save+","+ item.SiteName
+            window.localStorage.setItem("savedata", save);
+            console.log(localStorage);
           }
           else if(save==""){
-            save = item.SiteName
+            window.localStorage.clear();
+            console.log(localStorage);
           }
-        })
-        window.localStorage.setItem("savedata", save);
-        console.log(localStorage);
+        }
       }
-      
-    },
-    removeThisStared:function(remove){
-      var removeIndex=""
-      var save =""
-      this.stared.every(function(item,index){
-        if(item.SiteName==remove.SiteName){
-          removeIndex = index
-          return false
-        }
-        else{
-          return true
-        }
-      })
-      this.stared.splice(removeIndex,1);
-      this.stared.forEach(function(item){
-        if(save){
-          save =save+","+ item.SiteName
-        }
-        else if(save==""){
-          save = item.SiteName
-        }
-      })
-      if(save){
-        window.localStorage.setItem("savedata", save);
-        console.log(localStorage);
-      }
-      else if(save==""){
-        window.localStorage.clear();
-        console.log(localStorage);
-      }
-    }
-  }
-});
-</script>
-<!-- 
-狀態對應表
-'良好',
-'status-aqi2' '普通',
-'status-aqi3' '對敏感族群不健康',
-'status-aqi4' '對所有族群不健康',
-'status-aqi5' '非常不健康',
-'status-aqi6' '危害'
---> 
-<style>
-.status-aqi2 {
-  background-color: #ffff00;
-}
-.status-aqi3 {
-  background-color: #ff7e00;
-}
-.status-aqi4 {
-  background-color: #ff0000;
-}
-.status-aqi5 {
-  background-color: #8f3f97;
-}
-.status-aqi6 {
-  background-color: #7e0023;
-}
-</style>
-
- 
-        </div>
-      </div>
-    </div>
-  </body>
+    });
+  </script>
 </html>
